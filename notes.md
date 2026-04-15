@@ -6,6 +6,8 @@ References :
 
     -- starter code (template) command --> npx create-solana-dapp@latest
 
+    -- npm dev server command --> npm run dev
+
 
 
 Projects :
