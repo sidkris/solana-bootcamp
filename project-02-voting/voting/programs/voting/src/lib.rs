@@ -26,3 +26,14 @@ pub struct PollAccount {
     pub poll_voting_end : u64,
     pub poll_optoin_index : u64,
 }
+
+
+#[account]
+#[derive(InitSpace)]
+pub struct CandidateAccount {
+    #[max_len(64)]
+    pub candidate_name :  String,
+    pub candidate_votes : u64,
+}
+
+
