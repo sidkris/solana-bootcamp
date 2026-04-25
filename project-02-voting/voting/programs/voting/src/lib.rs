@@ -8,7 +8,7 @@ pub mod voting {
 
     pub fn init_poll(ctx: Context<InitPoll>, poll_id : u64, start_time : u64, end_time : u64, name : String, description : String) -> Result<()> {
         
-        let mut poll = ctx.accounts.poll_account;
+        let poll = & mut ctx.accounts.poll_account;
         
         poll.poll_description = description;
         poll.poll_voting_start = start_time;
@@ -17,7 +17,36 @@ pub mod voting {
         
         Ok(())
     }
+
+    pub fn initialize_candidate(ctx : Context<IntitalizeCandidate>, _poll_id : u64, candidate : String) -> Result<()> {
+        ctx.accounts.candidate_account.candidate_name = candidate;
+        ctx.accounts.poll_account.poll_option_index += 1;
+        Ok(())
+    }
+
+
+    pub fn vote(ctx : Context<Vote>, _poll_id : u64, candidate : String) -> Result<()>{
+
+        let candidate = &mut ctx.accounts.candidate_account;
+        let current_time = Clock::get()?.unix_timestamp; // u64 tyoe
+
+        if current_time > (ctx.accounts.poll_account.poll_voting_end as i64) { // unix time stamps can be negative, hence i64 instead of u64
+            return Err(ErrorCode::VotingEnded.into());
+        }
+
+        
+        if current_time <= (ctx.accounts.poll_account.poll_voting_start as i64) { // unix time stamps can be negative, hence i64 instead of u64
+            return Err(ErrorCode::VotingNotStarted.into());
+        }
+
+        candidate.candidate_votes += 1;
+
+        Ok(())
+    }
+
 }
+
+
 
 #[derive(Accounts)]
 #[instruction(poll_id : u64)]
@@ -60,6 +89,31 @@ pub struct InitializeCandidate<'info> {
 }
 
 
+#[derive(Accounts)]
+#[instruction(poll_id : u64, candidate : String)]
+pub struct Vote<'info> {
+    #[account(mut)]
+    pub signer : Signer<'info>,
+
+    #[account(
+        mut,
+        seeds = [b"poll".as_ref(), poll_id.to_le_bytes().as_ref()],
+        bump
+    )]
+    pub poll_account : Account<'info, PollAccount>,
+
+    #[account(
+        mut,
+        seeds = [poll_id.to_le_bytes().as_ref(), candidate.as_ref()],
+        bump
+    )]
+    pub candidate_account : Account<'info, CandidateAccount>,
+    
+}
+
+
+
+
 #[account]
 #[derive(InitSpace)]
 pub struct PollAccount {
@@ -82,3 +136,11 @@ pub struct CandidateAccount {
 }
 
 
+#[error_code]
+pub enum ErrorCode {
+    #[msg("Voting has not started yet.")]
+    VotingNotStarted,
+
+    #[msg("Voting has ended.")]
+    VotingEnded,
+}
