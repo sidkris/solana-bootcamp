@@ -6,7 +6,7 @@ declare_id!("3nSKMvr8rJa6fih43gFHSW8TsVozKxLuy1H2VpYXyByV");  // program's publi
 pub mod voting {
     use super::*;
 
-    pub fn init_poll(ctx: Context<InitPoll>, poll_id : u64, start_time : u64, end_time : u64, name : String, description : String) -> Result<()> {
+    pub fn init_poll(ctx: Context<InitPoll>, _poll_id : u64, start_time : u64, end_time : u64, name : String, description : String) -> Result<()> {
         
         let poll = & mut ctx.accounts.poll_account;
         
@@ -25,7 +25,7 @@ pub mod voting {
     }
 
 
-    pub fn vote(ctx : Context<Vote>, _poll_id : u64, candidate : String) -> Result<()>{
+    pub fn vote(ctx : Context<Vote>, _poll_id : u64, _candidate : String) -> Result<()>{
 
         let candidate = &mut ctx.accounts.candidate_account;
         let current_time = Clock::get()?.unix_timestamp; // u64 tyoe
