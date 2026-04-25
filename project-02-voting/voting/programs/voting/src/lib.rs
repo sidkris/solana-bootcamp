@@ -6,14 +6,26 @@ declare_id!("3nSKMvr8rJa6fih43gFHSW8TsVozKxLuy1H2VpYXyByV");  // program's publi
 pub mod voting {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+    pub fn init_poll(ctx: Context<InitPoll>) -> Result<()> {
         msg!("Greetings from: {:?}", ctx.program_id);
         Ok(())
     }
 }
 
-// #[derive(Accounts)]
-// pub struct Initialize {}
+#[derive(Accounts)]
+pub struct InitPoll {
+    #[account(mut)]
+    pub signer : Signer<'info>,
+
+    #[account(init, 
+              payer = signer, 
+              space = 8 + PollAccount::INIT_SPACE, 
+              seeds = [b"poll".as_ref(), 
+              poll_id.le_bytes().as_ref()], 
+              bump)]
+    pub poll_account : Account<'info, PollAccount>, 
+}
+
 
 #[account]
 #[derive(InitSpace)]
