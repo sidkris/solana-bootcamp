@@ -12,9 +12,11 @@ References / Notes :
 
     -- Any String types in Anchor will need the max-length defined
 
+    -- "anchor init <project-name>" to initialize a new project
 
 Projects :
 
     -- PROJECT-01 --> Hello World
 
     -- PROJECT-02 --> VOTING
+
